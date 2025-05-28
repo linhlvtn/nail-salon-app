@@ -1,60 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class StatsTab extends StatelessWidget {
+  const StatsTab({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        final isAdmin = snapshot.data!['role'] == 'admin';
-        return Scaffold(
-          body: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                if (isAdmin) ...[
-                  Text('Doanh thu tháng: 10,000,000', style: TextStyle(fontSize: 18)),
-                  Text('Số khách: 50', style: TextStyle(fontSize: 18)),
-                ],
-                SizedBox(height: 16),
-                Container(
-                  height: 200,
-                  child: LineChart(
-                    LineChartData(
-                      titlesData: FlTitlesData(show: true),
-                      borderData: FlBorderData(show: true),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: [
-                            FlSpot(0, 500000),
-                            FlSpot(1, 600000),
-                            FlSpot(2, 800000),
-                            FlSpot(3, 700000),
-                            FlSpot(4, 900000),
-                          ],
-                          isCurved: true,
-                          color: Colors.teal,
-                          dotData: FlDotData(show: false),
-                        ),
-                      ],
-                    ),
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('reports').snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final reports = snapshot.data!.docs;
+
+        double totalRevenue = 0;
+        final serviceRevenue = {'Nail': 0.0, 'Mi': 0.0, 'Gội': 0.0, 'Xăm': 0.0};
+        for (var report in reports) {
+          try {
+            final amount = double.parse(report['amount']);
+            totalRevenue += amount;
+            serviceRevenue[report['service']] = serviceRevenue[report['service']]! + amount;
+          } catch (e) {
+            print('Lỗi parse amount: $e');
+          }
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              const Text('Tổng doanh thu', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text('${totalRevenue.toStringAsFixed(0)} VNĐ', style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 16),
+              Expanded(
+                child: PieChart(
+                  PieChartData(
+                    sections: [
+                      PieChartSectionData(
+                        value: serviceRevenue['Nail'],
+                        color: Colors.teal,
+                        title: 'Nail',
+                        showTitle: true,
+                      ),
+                      PieChartSectionData(
+                        value: serviceRevenue['Mi'],
+                        color: Colors.red,
+                        title: 'Mi',
+                        showTitle: true,
+                      ),
+                      PieChartSectionData(
+                        value: serviceRevenue['Gội'],
+                        color: Colors.blue,
+                        title: 'Gội',
+                        showTitle: true,
+                      ),
+                      PieChartSectionData(
+                        value: serviceRevenue['Xăm'],
+                        color: Colors.yellow,
+                        title: 'Xăm',
+                        showTitle: true,
+                      ),
+                    ],
                   ),
                 ),
-                if (isAdmin)
-                  DropdownButton<String>(
-                    value: 'Tháng 5',
-                    onChanged: (value) {},
-                    items: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5'].map((String value) {
-                      return DropdownMenuItem<String>(value: value, child: Text(value));
-                    }).toList(),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

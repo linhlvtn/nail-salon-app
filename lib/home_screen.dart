@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'store_tab.dart';
-// import 'stats_tab.dart'; // Comment tạm thời
-// import 'approval_screen.dart'; // Comment tạm thời
+import 'stats_tab.dart';
+import 'approval_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,7 +18,7 @@ class HomeScreen extends StatelessWidget {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
         final isAdmin = snapshot.data!['role'] == 'admin';
         return DefaultTabController(
-          length: 1, // Tạm thời chỉ có 1 tab
+          length: 2,
           child: Scaffold(
             appBar: AppBar(
               title: const Text('Nail Salon'),
@@ -25,26 +26,27 @@ class HomeScreen extends StatelessWidget {
                 if (isAdmin)
                   IconButton(
                     icon: const Icon(Icons.person_add),
-                    onPressed: () {
-                      // TODO: Thêm logic chuyển sang ApprovalScreen
-                    },
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ApprovalScreen())),
                   ),
                 IconButton(
                   icon: const Icon(Icons.logout),
-                  onPressed: () => FirebaseAuth.instance.signOut(),
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+                  },
                 ),
               ],
               bottom: const TabBar(
                 tabs: [
                   Tab(text: 'Cửa hàng'),
-                  // Tab(text: 'Thống kê'), // Comment tạm thời
+                  Tab(text: 'Thống kê'),
                 ],
               ),
             ),
             body: const TabBarView(
               children: [
                 StoreTab(),
-                // StatsTab(), // Comment tạm thời
+                StatsTab(),
               ],
             ),
           ),

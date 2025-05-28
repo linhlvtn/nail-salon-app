@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:intl/intl.dart';
 import 'add_report_screen.dart';
 
 class StoreTab extends StatelessWidget {
@@ -27,6 +28,7 @@ class StoreTab extends StatelessWidget {
                   itemBuilder: (context, index) {
                     var report = snapshot.data!.docs[index];
                     bool isOwner = report['userId'] == user.uid;
+                    final date = DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(report['date']));
                     return AnimationConfiguration.synchronized(
                       duration: const Duration(milliseconds: 375),
                       child: FadeInAnimation(
@@ -38,16 +40,22 @@ class StoreTab extends StatelessWidget {
                                   ? Image.network(report['image'], width: 50, height: 50, fit: BoxFit.cover)
                                   : const Icon(Icons.image, size: 50),
                               title: Text('${report['service']} - ${report['amount']}'),
-                              subtitle: Text(report['date']),
+                              subtitle: Text(date),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (isAdmin)
                                     IconButton(
                                       icon: const Icon(Icons.edit),
-                                      onPressed: () {
-                                        // TODO: Thêm logic sửa báo cáo
-                                      },
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => AddReportScreen(
+                                            reportId: report.id,
+                                            initialData: report.data() as Map<String, dynamic>,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   if (isAdmin || isOwner)
                                     IconButton(
@@ -70,7 +78,7 @@ class StoreTab extends StatelessWidget {
             },
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AddReportScreen())),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddReportScreen())),
             child: const Icon(Icons.add),
             backgroundColor: Colors.teal,
           ),

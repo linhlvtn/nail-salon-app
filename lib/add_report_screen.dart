@@ -6,7 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 
 class AddReportScreen extends StatefulWidget {
-  const AddReportScreen({super.key});
+  final String? reportId;
+  final Map<String, dynamic>? initialData;
+
+  const AddReportScreen({super.key, this.reportId, this.initialData});
 
   @override
   _AddReportScreenState createState() => _AddReportScreenState();
@@ -19,6 +22,17 @@ class _AddReportScreenState extends State<AddReportScreen> {
   String _service = 'Nail';
   final _noteController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialData != null) {
+      _amountController.text = widget.initialData!['amount'] ?? '';
+      _paymentMethod = widget.initialData!['paymentMethod'] ?? 'Chuyển khoản';
+      _service = widget.initialData!['service'] ?? 'Nail';
+      _noteController.text = widget.initialData!['note'] ?? '';
+    }
+  }
+
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
@@ -27,18 +41,22 @@ class _AddReportScreenState extends State<AddReportScreen> {
   }
 
   Future<void> _submitReport() async {
-    if (_image == null) {
+    if (_image == null && widget.initialData == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui lòng chụp ảnh')),
       );
       return;
     }
     final user = FirebaseAuth.instance.currentUser!;
-    final ref = FirebaseStorage.instance.ref().child('reports/${DateTime.now().toString()}');
-    await ref.putFile(_image!);
-    final imageUrl = await ref.getDownloadURL();
+    String? imageUrl = widget.initialData?['image'];
 
-    await FirebaseFirestore.instance.collection('reports').add({
+    if (_image != null) {
+      final ref = FirebaseStorage.instance.ref().child('reports/${DateTime.now().toString()}');
+      await ref.putFile(_image!);
+      imageUrl = await ref.getDownloadURL();
+    }
+
+    final data = {
       'userId': user.uid,
       'amount': _amountController.text,
       'paymentMethod': _paymentMethod,
@@ -46,25 +64,33 @@ class _AddReportScreenState extends State<AddReportScreen> {
       'note': _noteController.text,
       'image': imageUrl,
       'date': DateTime.now().toString(),
-    });
+    };
+
+    if (widget.reportId != null) {
+      await FirebaseFirestore.instance.collection('reports').doc(widget.reportId).update(data);
+    } else {
+      await FirebaseFirestore.instance.collection('reports').add(data);
+    }
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Thêm báo cáo')),
+      appBar: AppBar(title: Text(widget.reportId != null ? 'Chỉnh sửa báo cáo' : 'Thêm báo cáo')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _image == null
-                  ? ElevatedButton(
-                      onPressed: _pickImage,
-                      child: const Text('Chụp ảnh'),
-                    )
-                  : Image.file(_image!, height: 200),
+              widget.initialData?['image'] != null && _image == null
+                  ? Image.network(widget.initialData!['image'], height: 200)
+                  : _image != null
+                      ? Image.file(_image!, height: 200)
+                      : ElevatedButton(
+                          onPressed: _pickImage,
+                          child: const Text('Chụp ảnh'),
+                        ),
               TextField(
                 controller: _amountController,
                 decoration: const InputDecoration(labelText: 'Số tiền'),
@@ -91,7 +117,7 @@ class _AddReportScreenState extends State<AddReportScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _submitReport,
-                child: const Text('Gửi báo cáo'),
+                child: Text(widget.reportId != null ? 'Cập nhật báo cáo' : 'Gửi báo cáo'),
               ),
             ],
           ),
