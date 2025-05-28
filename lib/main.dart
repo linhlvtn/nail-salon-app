@@ -2,24 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login_screen.dart';
-import 'auth_service.dart';
+// import 'auth_service.dart'; // Chỉ import khi cần tạo Admin thủ công
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // Đảm bảo binding được khởi tạo
   try {
-    await Firebase.initializeApp(
-      // Thêm options thủ công nếu cần (lấy từ Firebase Console nếu file cấu hình không hoạt động)
-      // options: const FirebaseOptions(
-      //   apiKey: "YOUR_API_KEY",
-      //   appId: "YOUR_APP_ID",
-      //   messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      //   projectId: "YOUR_PROJECT_ID",
-      // ),
-    );
-    await AuthService().createAdminAccount(); // Chạy 1 lần, sau đó xóa dòng này
+    await Firebase.initializeApp(); // Khởi tạo Firebase
+    print('Firebase initialized successfully');
   } catch (e) {
-    print('Lỗi khởi tạo Firebase: $e');
+    print('Error initializing Firebase: $e');
+    // Nếu lỗi vẫn xảy ra, kiểm tra console để debug
   }
+  // await AuthService().createAdminAccount(); // Chạy thủ công 1 lần nếu cần, sau đó xóa
   runApp(const MyApp());
 }
 
