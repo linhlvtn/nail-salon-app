@@ -1,22 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'screens/auth/register_screen.dart';
+import 'firebase_options.dart';
+import 'src/app.dart'; // hoặc nơi chứa MyApp của bạn
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Nail Salon',
-      theme: ThemeData.dark(),
-      home: const RegisterScreen(), // 👉 test RegisterScreen
-    );
-  }
 }

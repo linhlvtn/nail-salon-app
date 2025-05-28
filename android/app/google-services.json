@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "444753173579",
+    "project_id": "suhii-ef849",
+    "storage_bucket": "suhii-ef849.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444753173579:android:1370c3927b0698a6e181ce",
+        "android_client_info": {
+          "package_name": "com.example.nail_suhii"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz8le2lsgfagp3HHZGPg0Q5E4w-6ADCCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

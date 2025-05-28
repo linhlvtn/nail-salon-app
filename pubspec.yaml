@@ -30,14 +30,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.16.0
-  cloud_firestore: ^4.17.5
+  
+  firebase_core: ^3.13.1
+  firebase_auth: ^5.5.4
+  cloud_firestore: ^5.6.8
   image_picker: ^1.1.0
-  firebase_storage: ^11.6.0
+  firebase_storage: ^12.4.6
   provider: ^6.1.2
-  intl: ^0.19.0
-  fl_chart: ^0.66.1
+  intl: ^0.20.2
+  fl_chart: ^1.0.0
+  fluttertoast: ^8.2.4
 
 
 dev_dependencies:
@@ -49,7 +51,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -92,3 +94,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  assets:
+    - assets/fonts/
+
+
+  fonts:
+      - family: Poppins
+        fonts:
+          - asset: assets/fonts/Poppins-Regular.ttf
+          - asset: assets/fonts/Poppins-Bold.ttf
+            weight: 700
