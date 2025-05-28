@@ -7,16 +7,24 @@ class AuthService {
 
   Future<void> createAdminAccount() async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: 'admin@salonapp.com',
-        password: 'admin123',
-      );
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'phone': 'admin',
-        'role': 'admin',
-        'approved': true,
-        'createdAt': Timestamp.now(),
-      });
+      // Kiểm tra nếu tài khoản Admin đã tồn tại
+      final adminEmail = 'admin@suhii.com';
+      final adminUser = await _auth.fetchSignInMethodsForEmail(adminEmail);
+      if (adminUser.isEmpty) {
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: adminEmail,
+          password: 'admin123',
+        );
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'phone': 'admin',
+          'role': 'admin',
+          'approved': true,
+          'createdAt': Timestamp.now(),
+        });
+        print('Tài khoản Admin đã được tạo thành công.');
+      } else {
+        print('Tài khoản Admin đã tồn tại, không tạo lại.');
+      }
     } catch (e) {
       print('Lỗi tạo tài khoản Admin: $e');
     }
@@ -28,7 +36,7 @@ class AuthService {
         throw Exception('Số điện thoại không được trống và mật khẩu phải có ít nhất 6 ký tự');
       }
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: '$phone@salonapp.com',
+        email: '$phone@suhii.com',
         password: password,
       );
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -55,7 +63,7 @@ class AuthService {
         throw Exception('Số điện thoại và mật khẩu không được trống');
       }
       await _auth.signInWithEmailAndPassword(
-        email: '$phone@salonapp.com',
+        email: '$phone@suhii.com',
         password: password,
       );
       final userDoc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();

@@ -58,7 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Nail Salon', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.teal)),
+            Text(
+              'Nail Salon',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.green),
+            ),
             const SizedBox(height: 32),
             TextField(
               controller: _phoneController,
@@ -96,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-              child: const Text('Đăng ký', style: TextStyle(color: Colors.teal)),
+              child: const Text('Đăng ký', style: TextStyle(color: Colors.green)),
             ),
           ],
         ),
